@@ -46,6 +46,8 @@
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart'
+import toast from '../utils/toast'
+import confirmAction from '../utils/confirm'
 
 const router = useRouter()
 const cartStore = useCartStore()
@@ -59,25 +61,25 @@ const updateQuantity = async (itemId, quantity) => {
   try {
     await cartStore.updateQuantity(itemId, quantity)
   } catch (e) {
-    alert(e.message || '更新失败')
+    toast.error(e.message || '更新失败')
   }
 }
 
 const deleteItem = async (itemId) => {
-  if (!confirm('确定删除该商品吗？')) return
+  if (!(await confirmAction('确定删除该商品吗？', { confirmText: '确认删除', danger: true }))) return
   try {
     await cartStore.deleteItem(itemId)
   } catch (e) {
-    alert(e.message || '删除失败')
+    toast.error(e.message || '删除失败')
   }
 }
 
 const clearCart = async () => {
-  if (!confirm('确定清空购物车吗？')) return
+  if (!(await confirmAction('确定清空购物车吗？', { confirmText: '确认清空', danger: true }))) return
   try {
     await cartStore.clearCart()
   } catch (e) {
-    alert(e.message || '清空失败')
+    toast.error(e.message || '清空失败')
   }
 }
 
@@ -87,11 +89,11 @@ const checkout = async () => {
     const api = (await import('../api')).default
     const res = await api.post('/api/orders', { cartItemIds })
     if (res.data.code === 200) {
-      alert('下单成功')
+      toast.success('下单成功')
       router.push(`/order/${res.data.data.id}`)
     }
   } catch (e) {
-    alert(e.message || '下单失败')
+    toast.error(e.message || '下单失败')
   }
 }
 </script>

@@ -45,20 +45,8 @@
       </div>
 
       <div class="reviews-section">
-        <h2 class="section-title">商品评价</h2>
-        <div v-if="reviews.length === 0" class="empty-reviews">
-          <p>暂无评价</p>
-        </div>
-        <div v-for="review in reviews" :key="review.id" class="review-card">
-          <div class="review-header">
-            <span class="review-user">{{ review.username }}</span>
-            <span class="review-rating">
-              <span v-for="i in 5" :key="i" class="star" :class="{ active: i <= review.rating }">★</span>
-            </span>
-          </div>
-          <p class="review-content">{{ review.content }}</p>
-          <span class="review-date">{{ review.createdAt }}</span>
-        </div>
+        <h2 class="section-title">商品评价 <span v-if="reviews.length" class="review-count">{{ reviews.length }} 条</span></h2>
+        <ReviewList :reviews="reviews" :is-logged-in="userStore.isLoggedIn" />
       </div>
     </div>
   </div>
@@ -72,7 +60,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../stores/user'
 import { useCartStore } from '../stores/cart'
+import ReviewList from '../components/ReviewList.vue'
 import api from '../api'
+import toast from '../utils/toast'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -175,16 +165,16 @@ const decreaseQuantity = () => {
 
 const addToCart = async () => {
   if (!userStore.isLoggedIn) {
-    alert('请先登录')
+    toast.error('请先登录')
     return
   }
   if (!canAddToCart.value) return
   try {
     const skuId = selectedSku.value ? selectedSku.value.id : null
     await cartStore.addToCart(product.value.id, quantity.value, skuId)
-    alert('已加入购物车')
+    toast.success('已加入购物车')
   } catch (e) {
-    alert(e.message || '添加失败')
+    toast.error(e.message || '添加失败')
   }
 }
 
@@ -342,48 +332,9 @@ onMounted(async () => {
   color: #333;
 }
 
-.review-card {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.review-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.review-user {
-  font-weight: bold;
-  color: #333;
-}
-
-.review-rating .star {
-  color: #ddd;
-  font-size: 18px;
-}
-
-.review-rating .star.active {
-  color: #ffc107;
-}
-
-.review-content {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 10px;
-}
-
-.review-date {
-  font-size: 12px;
-  color: #999;
-}
-
-.empty-reviews {
-  text-align: center;
-  padding: 40px;
+.review-count {
+  font-size: 14px;
+  font-weight: normal;
   color: #999;
 }
 

@@ -40,7 +40,15 @@ public class OrderService {
     private final CartItemMapper cartItemMapper;
     private final ProductMapper productMapper;
     private final ProductSkuMapper productSkuMapper;
+    private final ProductService productService;
     private final FlashSaleOrderMapper flashSaleOrderMapper;
+    private final LogisticsService logisticsService;
+    // 消息队列持有所有 Handler，而 Handler 又依赖本类，直接用 ObjectProvider 延迟取，避免循环依赖
+    private final org.springframework.beans.factory.ObjectProvider<com.nebula.stationery.mq.MessageQueueService> messageQueue;
+
+    /** 未支付订单多久后自动取消，演示时可调小 */
+    @org.springframework.beans.factory.annotation.Value("${stationery.order.pay-timeout-minutes:720}")
+    private long payTimeoutMinutes;
 
     @Transactional
     public OrderVO createOrder(Long userId, OrderRequest request) {
@@ -103,6 +111,7 @@ public class OrderService {
                 product.setStock(product.getStock() - cartItem.getQuantity());
                 productMapper.updateById(product);
             }
+            productService.evictProductCache(cartItem.getProductId());
 
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderId(order.getId());
@@ -120,6 +129,14 @@ public class OrderService {
                 new LambdaQueryWrapper<CartItem>()
                         .eq(CartItem::getUserId, userId)
                         .in(CartItem::getId, request.getCartItemIds())
+        );
+
+        // 延迟消息：到点仍是待支付就由系统取消（和定时兜底任务形成双保险）
+        messageQueue.getObject().publishDelayed(
+                com.nebula.stationery.mq.MessageQueueService.TOPIC_ORDER,
+                "order.pay.timeout",
+                java.util.Map.of("orderId", String.valueOf(order.getId())),
+                java.time.Duration.ofMinutes(payTimeoutMinutes)
         );
 
         return getOrderDetail(order.getId(), userId);
@@ -174,7 +191,9 @@ public class OrderService {
             throw new BusinessException("订单不存在");
         }
 
-        return convertToVO(order);
+        OrderVO vo = convertToVO(order);
+        vo.setLogistics(logisticsService.getView(orderId));
+        return vo;
     }
 
     @Transactional
@@ -189,6 +208,19 @@ public class OrderService {
 
         order.setStatus(1); // 已支付
         orderMapper.updateById(order);
+
+        // 支付成功后累计销量，供销量统计使用
+        List<OrderItem> orderItems = orderItemMapper.selectList(
+                new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId)
+        );
+        for (OrderItem item : orderItems) {
+            Product product = productMapper.selectById(item.getProductId());
+            if (product != null) {
+                product.setSoldCount(product.getSoldCount() + item.getQuantity());
+                productMapper.updateById(product);
+                productService.evictProductCache(item.getProductId());
+            }
+        }
     }
 
     @Transactional
@@ -201,7 +233,29 @@ public class OrderService {
             throw new BusinessException("只有待支付订单可以取消");
         }
 
-        // 回补库存
+        restoreOrderStock(orderId);
+
+        order.setStatus(4); // 已取消
+        orderMapper.updateById(order);
+    }
+
+    /**
+     * 消息队列消费端使用：超时未支付订单由系统取消。
+     * @return false 表示订单已支付或已取消，无需处理
+     */
+    @Transactional
+    public boolean cancelExpiredOrder(Long orderId) {
+        Order order = orderMapper.selectById(orderId);
+        if (order == null || order.getStatus() != 0) {
+            return false;
+        }
+        restoreOrderStock(orderId);
+        order.setStatus(4);
+        orderMapper.updateById(order);
+        return true;
+    }
+
+    private void restoreOrderStock(Long orderId) {
         List<OrderItem> orderItems = orderItemMapper.selectList(
                 new LambdaQueryWrapper<OrderItem>().eq(OrderItem::getOrderId, orderId)
         );
@@ -219,10 +273,8 @@ public class OrderService {
                     productMapper.updateById(product);
                 }
             }
+            productService.evictProductCache(item.getProductId());
         }
-
-        order.setStatus(4); // 已取消
-        orderMapper.updateById(order);
     }
 
     @Transactional
@@ -231,8 +283,8 @@ public class OrderService {
         if (order == null || !order.getUserId().equals(userId)) {
             throw new BusinessException("订单不存在");
         }
-        if (order.getStatus() != 2) {
-            throw new BusinessException("只有已发货订单可以确认收货");
+        if (order.getStatus() != 1 && order.getStatus() != 2) {
+            throw new BusinessException("只有已支付或已发货订单可以确认收货");
         }
 
         order.setStatus(3); // 已完成
@@ -265,7 +317,9 @@ public class OrderService {
         if (order == null) {
             throw new BusinessException("订单不存在");
         }
-        return convertToVO(order);
+        OrderVO vo = convertToVO(order);
+        vo.setLogistics(logisticsService.getView(orderId));
+        return vo;
     }
 
     @Transactional
@@ -278,8 +332,35 @@ public class OrderService {
             throw new BusinessException("只有已支付订单可以标记发货");
         }
 
+        logisticsService.ship(orderId, "SF", null, null);
         order.setStatus(2); // 已发货
         orderMapper.updateById(order);
+    }
+
+    /** 后台发货：可填快递公司和运单号，留空自动生成 */
+    @Transactional
+    public OrderVO shipOrder(Long orderId, com.nebula.stationery.dto.ShipRequest request) {
+        Order order = orderMapper.selectById(orderId);
+        if (order == null) {
+            throw new BusinessException("订单不存在");
+        }
+        if (order.getStatus() != 1) {
+            throw new BusinessException("只有已支付订单可以标记发货");
+        }
+
+        String companyCode = request == null ? null : request.getCompanyCode();
+        if (companyCode != null && !companyCode.isBlank()) {
+            logisticsService.companyName(companyCode);
+        }
+        logisticsService.ship(
+                orderId,
+                companyCode,
+                request == null ? null : request.getTrackingNo(),
+                null
+        );
+        order.setStatus(2);
+        orderMapper.updateById(order);
+        return getAdminOrderDetail(orderId);
     }
 
     private OrderVO convertToVO(Order order) {

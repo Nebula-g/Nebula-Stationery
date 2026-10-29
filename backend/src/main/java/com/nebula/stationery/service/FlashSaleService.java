@@ -26,6 +26,7 @@ public class FlashSaleService {
     private final FlashSaleMapper flashSaleMapper;
     private final FlashSaleOrderMapper flashSaleOrderMapper;
     private final ProductMapper productMapper;
+    private final ProductService productService;
 
     public List<Map<String, Object>> listFlashSales() {
         List<FlashSale> sales = flashSaleMapper.selectList(
@@ -126,6 +127,7 @@ public class FlashSaleService {
         if (product != null) {
             product.setStock(product.getStock() - order.getQuantity());
             productMapper.updateById(product);
+            productService.evictProductCache(order.getProductId());
         }
     }
 

@@ -1,0 +1,15 @@
+# 微服务本地配置模板
+#
+# 复制为 cloud/cloud-config.yml 后填写真实值（该文件已在 .gitignore 中，不会入库）：
+#   cp cloud/cloud-config.example.yml cloud/cloud-config.yml
+#
+# 四个服务和网关都会以 optional:file:./cloud-config.yml,optional:file:../cloud-config.yml
+# 的方式加载它，所以数据库密码和 JWT 密钥只需要维护一份。
+spring:
+  datasource:
+    username: root
+    password: ""
+
+jwt:
+  # HS256 要求至少 32 字节，四个服务必须完全一致，否则网关签发的令牌下游验不过
+  secret: "please-replace-with-a-32-byte-or-longer-random-string"

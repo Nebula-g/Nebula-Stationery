@@ -17,11 +17,17 @@
     <div class="admin-body">
       <aside class="admin-sidebar">
         <nav class="sidebar-nav">
+          <router-link to="/admin/stats" class="sidebar-link">
+            <span>📊</span> 数据统计
+          </router-link>
           <router-link to="/admin/orders" class="sidebar-link">
             <span>📦</span> 订单管理
           </router-link>
           <router-link to="/admin/products" class="sidebar-link">
-            <span>️</span> 商品管理
+            <span>🗂️</span> 商品管理
+          </router-link>
+          <router-link to="/admin/ops" class="sidebar-link">
+            <span>⚙️</span> 中间件监控
           </router-link>
         </nav>
       </aside>

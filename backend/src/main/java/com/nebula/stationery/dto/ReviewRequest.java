@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ReviewRequest {
 
@@ -20,4 +22,7 @@ public class ReviewRequest {
     private Integer rating;
 
     private String content;
+
+    /** 评价图片 URL 列表，最多 6 张 */
+    private List<String> imageUrls;
 }

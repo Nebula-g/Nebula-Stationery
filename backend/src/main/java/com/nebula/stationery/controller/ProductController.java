@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nebula.stationery.common.Result;
 import com.nebula.stationery.service.ProductService;
 import com.nebula.stationery.vo.CategoryVO;
+import com.nebula.stationery.vo.ProductSuggestVO;
 import com.nebula.stationery.vo.ProductVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +21,21 @@ public class ProductController {
     @GetMapping("/products")
     public Result<Page<ProductVO>> getProductList(
             @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        Page<ProductVO> result = productService.getProductList(categoryId, page, size);
+        Page<ProductVO> result = productService.getProductList(categoryId, keyword, page, size);
         return Result.success(result);
+    }
+
+    @GetMapping("/products/suggest")
+    public Result<List<ProductSuggestVO>> suggest(@RequestParam(required = false) String keyword) {
+        return Result.success(productService.suggest(keyword));
+    }
+
+    @GetMapping("/products/hot-keywords")
+    public Result<List<String>> hotKeywords(@RequestParam(defaultValue = "8") Integer limit) {
+        return Result.success(productService.hotKeywords(limit));
     }
 
     @GetMapping("/products/{id}")

@@ -31,9 +31,28 @@
 
       <div class="order-actions">
         <router-link to="/admin/orders" class="btn btn-secondary">返回订单列表</router-link>
-        <button v-if="order.status === 1" @click="shipOrder" class="btn btn-primary">标记发货</button>
+        <button v-if="order.status === 1" @click="shipVisible = true" class="btn btn-primary">去发货</button>
+      </div>
+
+      <div v-if="order.logistics" class="logistics-block">
+        <h3 class="block-title">物流信息</h3>
+        <p class="logistics-line">
+          {{ order.logistics.companyName }} · 运单号 {{ order.logistics.trackingNo }}
+          <span class="logistics-status" :class="{ done: order.logistics.status === 1 }">{{ order.logistics.statusText }}</span>
+        </p>
+        <ul v-if="order.logistics.tracks?.length" class="timeline">
+          <li v-for="(track, idx) in order.logistics.tracks" :key="idx" :class="{ latest: idx === 0 }">
+            <span class="dot"></span>
+            <div>
+              <p class="track-desc">{{ track.description }}</p>
+              <p class="track-meta">{{ track.time }}<span v-if="track.location"> · {{ track.location }}</span></p>
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
+
+    <ShipDialog v-model="shipVisible" :order="order" @shipped="fetchOrder" />
   </div>
   <div v-else class="loading">
     <p>加载中...</p>
@@ -42,13 +61,14 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import api from '../../api'
+import ShipDialog from '../../components/ShipDialog.vue'
 
 const route = useRoute()
-const router = useRouter()
 
 const order = ref(null)
+const shipVisible = ref(false)
 
 const fetchOrder = async () => {
   try {
@@ -58,19 +78,6 @@ const fetchOrder = async () => {
     }
   } catch (e) {
     console.error('获取订单失败', e)
-  }
-}
-
-const shipOrder = async () => {
-  if (!confirm('确定标记发货吗？')) return
-  try {
-    const res = await api.put(`/api/admin/orders/${order.value.id}/ship`)
-    if (res.data.code === 200) {
-      alert('发货成功')
-      fetchOrder()
-    }
-  } catch (e) {
-    alert(e.message || '操作失败')
   }
 }
 
@@ -186,5 +193,92 @@ onMounted(fetchOrder)
   text-align: center;
   padding: 60px;
   color: #999;
+}
+
+.logistics-block {
+  margin-top: 24px;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 18px;
+}
+
+.block-title {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.logistics-line {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.logistics-status {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #fdf3e6;
+  color: #b26a1b;
+}
+
+.logistics-status.done {
+  background: #e9f7ef;
+  color: #1e7d4d;
+}
+
+.timeline {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+}
+
+.timeline li {
+  position: relative;
+  display: flex;
+  gap: 12px;
+  padding-bottom: 16px;
+}
+
+.timeline li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  bottom: 0;
+  width: 1px;
+  background: #eee;
+}
+
+.timeline .dot {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ddd;
+  margin-top: 4px;
+}
+
+.timeline li.latest .dot {
+  background: #2a9d8f;
+}
+
+.track-desc {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.timeline li.latest .track-desc {
+  color: #1e7d4d;
+  font-weight: bold;
+}
+
+.track-meta {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 3px;
 }
 </style>

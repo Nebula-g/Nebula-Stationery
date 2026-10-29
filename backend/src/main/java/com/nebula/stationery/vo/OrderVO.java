@@ -17,4 +17,5 @@ public class OrderVO {
     private String statusText;
     private LocalDateTime createdAt;
     private List<OrderItemVO> items;
+    private LogisticsVO logistics;
 }

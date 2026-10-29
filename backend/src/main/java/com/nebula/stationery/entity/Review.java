@@ -24,5 +24,9 @@ public class Review {
 
     private String content;
 
+    private String imageUrls;
+
+    private Integer likeCount;
+
     private LocalDateTime createdAt;
 }

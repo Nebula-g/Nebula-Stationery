@@ -1,0 +1,12 @@
+com\nebula\cloud\user\config\PasswordConfig.class
+com\nebula\cloud\user\dto\RegisterRequest.class
+com\nebula\cloud\user\entity\User.class
+com\nebula\cloud\user\vo\UserVO.class
+com\nebula\cloud\user\controller\InternalUserController.class
+com\nebula\cloud\user\vo\LoginResponse.class
+com\nebula\cloud\user\mapper\UserMapper.class
+com\nebula\cloud\user\controller\UserController.class
+com\nebula\cloud\user\dto\LoginRequest.class
+com\nebula\cloud\user\service\UserService.class
+com\nebula\cloud\user\controller\AuthController.class
+com\nebula\cloud\user\UserServiceApplication.class

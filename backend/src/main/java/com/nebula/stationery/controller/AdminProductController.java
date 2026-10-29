@@ -45,7 +45,7 @@ public class AdminProductController {
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
-        Page<ProductVO> result = productService.getProductList(categoryId, page, size);
+        Page<ProductVO> result = productService.getProductList(categoryId, null, page, size);
         return Result.success(result);
     }
 

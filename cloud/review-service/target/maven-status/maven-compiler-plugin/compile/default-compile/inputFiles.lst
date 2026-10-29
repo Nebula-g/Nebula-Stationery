@@ -1,0 +1,10 @@
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\entity\Review.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\feign\UserClient.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\service\ReviewService.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\ReviewServiceApplication.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\feign\dto\OrderBrief.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\mapper\ReviewMapper.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\vo\ReviewVO.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\dto\ReviewRequest.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\feign\OrderClient.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\review-service\src\main\java\com\nebula\cloud\review\controller\ReviewController.java

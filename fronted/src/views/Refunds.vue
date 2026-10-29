@@ -55,6 +55,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
+import confirmAction from '../utils/confirm'
 
 const refunds = ref([])
 
@@ -70,15 +72,15 @@ const fetchRefunds = async () => {
 }
 
 const cancelRefund = async (id) => {
-  if (!confirm('确定取消该退款申请吗？')) return
+  if (!(await confirmAction('确定取消该退款申请吗？', { confirmText: '确认取消', cancelText: '暂不取消', danger: true }))) return
   try {
     const res = await api.put(`/api/refunds/${id}/cancel`)
     if (res.data.code === 200) {
-      alert('已取消')
+      toast.success('已取消')
       fetchRefunds()
     }
   } catch (e) {
-    alert(e.response?.data?.message || '操作失败')
+    toast.error(e.response?.data?.message || '操作失败')
   }
 }
 

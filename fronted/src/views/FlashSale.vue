@@ -43,6 +43,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
+import confirmAction from '../utils/confirm'
 
 const flashSales = ref([])
 const myOrders = ref([])
@@ -92,38 +94,38 @@ const participate = async (flashSaleId) => {
   try {
     const res = await api.post('/api/flash-sale/participate', null, { params: { flashSaleId } })
     if (res.data.code === 200) {
-      alert('秒杀成功！订单金额: ¥' + res.data.data.totalAmount)
+      toast.success('秒杀成功！订单金额: ¥' + res.data.data.totalAmount)
       loadFlashSales()
       loadMyOrders()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '秒杀失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '秒杀失败') }
 }
 
 const payOrder = async (orderId) => {
   try {
     const res = await api.post(`/api/flash-sale/pay/${orderId}`)
     if (res.data.code === 200) {
-      alert('支付成功')
+      toast.success('支付成功')
       loadMyOrders()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '支付失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '支付失败') }
 }
 
 const cancelOrder = async (orderId) => {
-  if (!confirm('确定取消订单吗？')) return
+  if (!(await confirmAction('确定取消该秒杀订单吗？取消后不可恢复', { confirmText: '确认取消', cancelText: '暂不取消', danger: true }))) return
   try {
     const res = await api.post(`/api/flash-sale/cancel/${orderId}`)
     if (res.data.code === 200) {
-      alert('取消成功')
+      toast.success('取消成功')
       loadMyOrders()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '取消失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '取消失败') }
 }
 </script>
 

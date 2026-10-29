@@ -38,19 +38,24 @@
         <span class="order-amount">合计：¥{{ order.totalAmount.toFixed(2) }}</span>
         <div class="order-actions">
           <router-link :to="`/admin/orders/${order.id}`" class="btn btn-secondary btn-small">查看详情</router-link>
-          <button v-if="order.status === 1" @click="shipOrder(order.id)" class="btn btn-primary btn-small">标记发货</button>
+          <button v-if="order.status === 1" @click="openShip(order)" class="btn btn-primary btn-small">去发货</button>
         </div>
       </div>
     </div>
+
+    <ShipDialog v-model="shipVisible" :order="shipTarget" @shipped="fetchOrders" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../api'
+import ShipDialog from '../../components/ShipDialog.vue'
 
 const orders = ref([])
 const selectedStatus = ref(null)
+const shipVisible = ref(false)
+const shipTarget = ref(null)
 
 const fetchOrders = async () => {
   try {
@@ -72,17 +77,9 @@ const filterByStatus = (status) => {
   fetchOrders()
 }
 
-const shipOrder = async (orderId) => {
-  if (!confirm('确定标记发货吗？')) return
-  try {
-    const res = await api.put(`/api/admin/orders/${orderId}/ship`)
-    if (res.data.code === 200) {
-      alert('发货成功')
-      fetchOrders()
-    }
-  } catch (e) {
-    alert(e.message || '操作失败')
-  }
+const openShip = (order) => {
+  shipTarget.value = order
+  shipVisible.value = true
 }
 
 onMounted(fetchOrders)

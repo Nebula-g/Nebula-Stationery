@@ -15,6 +15,30 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: Asia/Shanghai
 
+  # Redis：缓存 + Stream 消息队列。没装 Redis 时应用照常启动，自动降级为进程内实现
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 500ms
+      connect-timeout: 500ms
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 30MB
+
+# 本地图片目录：未配置下面的 OSS 凭证时，图片存到这里
+upload:
+  dir: ./uploads
+
+# 阿里云 OSS（评价图片）。三项填上自己的凭证即启用；留空则自动改存本地 upload.dir
+alioss:
+  endpoint: oss-cn-beijing.aliyuncs.com
+  access-key-id: ""
+  access-key-secret: ""
+  bucket-name: ""
+
 mybatis-plus:
   mapper-locations: classpath:/mapper/*.xml
   type-aliases-package: com.nebula.stationery.entity
@@ -32,6 +56,32 @@ mybatis-plus:
 jwt:
   secret: YOUR_JWT_SECRET_KEY_HERE
   expiration: 86400000  # 24 小时（毫秒）
+
+# 本项目扩展配置
+stationery:
+  order:
+    # 下单后多久未支付自动取消（分钟），演示可调成 1
+    pay-timeout-minutes: 720
+  mq:
+    # 消费者轮询间隔（毫秒）
+    poll-ms: 1000
+  # 短信通道：mock=验证码打日志并由接口回显（演示用）；aliyun=真实发送
+  sms:
+    provider: mock
+    aliyun:
+      access-key-id: ""
+      access-key-secret: ""
+      sign-name: ""
+      template-code: ""
+  # 物流通道：mock=按发货时间生成模拟轨迹；kuaidi100=真实查询
+  logistics:
+    provider: mock
+    mock:
+      # 模拟物流每一站推进多少分钟，调小可快速看到签收
+      stage-minutes: 1
+    kuaidi100:
+      key: ""
+      customer: ""
 
 # 日志配置
 logging:

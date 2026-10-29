@@ -1,0 +1,15 @@
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\feign\ProductClient.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\feign\dto\StockChange.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\config\MybatisPlusConfig.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\controller\InternalOrderController.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\controller\OrderController.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\feign\dto\ProductSnapshot.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\mapper\OrderItemMapper.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\service\OrderService.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\entity\OrderItem.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\OrderServiceApplication.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\vo\OrderBrief.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\entity\Order.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\dto\CreateOrderRequest.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\vo\OrderVO.java
+C:\Users\Nebula\Documents\Qoder\Store\cloud\order-service\src\main\java\com\nebula\cloud\order\mapper\OrderMapper.java

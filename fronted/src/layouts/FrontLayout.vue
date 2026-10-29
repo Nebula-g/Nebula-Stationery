@@ -7,6 +7,7 @@
             <img src="/logo.png" alt="星云 · Nebula" class="logo-img" />
             <span class="logo-text">星云 · <span class="logo-text-en">Nebula</span></span>
           </router-link>
+          <SearchBox class="header-search" />
           <nav class="nav">
             <router-link to="/" class="nav-link">首页</router-link>
             <router-link to="/category/1" class="nav-link">书写工具</router-link>
@@ -24,6 +25,7 @@
                   <router-link to="/addresses" class="dropdown-item">📍 收货地址管理</router-link>
                   <router-link to="/refunds" class="dropdown-item">🔄 退款/售后</router-link>
                   <router-link to="/orders" class="dropdown-item">📦 我的订单</router-link>
+                  <router-link to="/orders?status=3" class="dropdown-item">📝 去评价</router-link>
                   <router-link to="/coupons" class="dropdown-item">🎫 优惠券</router-link>
                   <router-link to="/points" class="dropdown-item">⭐ 我的积分</router-link>
                   <div class="dropdown-divider"></div>
@@ -83,6 +85,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '../stores/user'
+import SearchBox from '../components/SearchBox.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -119,6 +122,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
   font-size: 28px;
   font-weight: bold;
   color: #000000;
@@ -136,7 +140,14 @@ const handleLogout = () => {
 
 .nav {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+}
+
+.header-content .header-search {
+  flex: 0 1 260px;
+  min-width: 150px;
+  max-width: 260px;
+  margin-left: 24px;
 }
 
 .nav-link {
@@ -144,6 +155,7 @@ const handleLogout = () => {
   font-size: 18px;
   transition: color 0.3s;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .nav-link:hover,
@@ -155,6 +167,7 @@ const handleLogout = () => {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-shrink: 0;
 }
 
 .user-dropdown {

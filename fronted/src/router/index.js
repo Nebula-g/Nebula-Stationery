@@ -17,6 +17,11 @@ const routes = [
         component: () => import('../views/Category.vue')
       },
       {
+        path: 'search',
+        name: 'Search',
+        component: () => import('../views/Search.vue')
+      },
+      {
         path: 'product/:id',
         name: 'ProductDetail',
         component: () => import('../views/ProductDetail.vue')
@@ -94,7 +99,12 @@ const routes = [
     children: [
       {
         path: '',
-        redirect: '/admin/orders'
+        redirect: '/admin/stats'
+      },
+      {
+        path: 'stats',
+        name: 'AdminStats',
+        component: () => import('../views/admin/StatsDashboard.vue')
       },
       {
         path: 'orders',
@@ -120,6 +130,11 @@ const routes = [
         path: 'products/:id/edit',
         name: 'AdminProductEdit',
         component: () => import('../views/admin/ProductForm.vue')
+      },
+      {
+        path: 'ops',
+        name: 'AdminOps',
+        component: () => import('../views/admin/OpsMonitor.vue')
       }
     ]
   }

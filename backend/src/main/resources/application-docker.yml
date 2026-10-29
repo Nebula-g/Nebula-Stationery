@@ -1,0 +1,76 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: nebula-stationery
+
+  # 数据库连接全部来自环境变量，镜像里不放任何密码
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://mysql:3306/nebula-store?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD}
+
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      timeout: 800ms
+      connect-timeout: 800ms
+
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: Asia/Shanghai
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 30MB
+
+upload:
+  dir: /app/uploads
+
+alioss:
+  endpoint: ${OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
+  access-key-id: ${OSS_ACCESS_KEY_ID:}
+  access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+  bucket-name: ${OSS_BUCKET_NAME:}
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.nebula.stationery.entity
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      id-type: auto
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 86400000
+
+stationery:
+  order:
+    pay-timeout-minutes: ${PAY_TIMEOUT_MINUTES:720}
+  mq:
+    poll-ms: 1000
+  sms:
+    provider: ${SMS_PROVIDER:mock}
+    aliyun:
+      access-key-id: ${SMS_ACCESS_KEY_ID:}
+      access-key-secret: ${SMS_ACCESS_KEY_SECRET:}
+      sign-name: ${SMS_SIGN_NAME:}
+      template-code: ${SMS_TEMPLATE_CODE:}
+  logistics:
+    provider: ${LOGISTICS_PROVIDER:mock}
+    mock:
+      stage-minutes: ${LOGISTICS_STAGE_MINUTES:1}
+    kuaidi100:
+      key: ${KUAIDI100_KEY:}
+      customer: ${KUAIDI100_CUSTOMER:}
+
+logging:
+  level:
+    com.nebula.stationery: info
+    org.springframework.security: warn

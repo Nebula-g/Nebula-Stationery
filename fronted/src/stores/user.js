@@ -32,14 +32,38 @@ export const useUserStore = defineStore('user', () => {
   const login = async (username, password) => {
     const res = await api.post('/api/auth/login', { username, password })
     if (res.data.code === 200) {
-      setToken(res.data.data.token, res.data.data.role, username)
+      const data = res.data.data
+      setToken(data.token, data.role, data.username || username)
       return true
     }
     throw new Error(res.data.message)
   }
 
-  const register = async (username, password) => {
-    const res = await api.post('/api/auth/register', { username, password })
+  const loginBySms = async (phone, code) => {
+    const res = await api.post('/api/auth/sms/login', { phone, code })
+    if (res.data.code === 200) {
+      const data = res.data.data
+      setToken(data.token, data.role, data.username || phone)
+      return true
+    }
+    throw new Error(res.data.message)
+  }
+
+  const sendSmsCode = async (phone) => {
+    const res = await api.post('/api/auth/sms/send', { phone })
+    if (res.data.code === 200) {
+      return res.data.data
+    }
+    throw new Error(res.data.message)
+  }
+
+  const register = async (username, password, phone, code) => {
+    const payload = { username, password }
+    if (phone) {
+      payload.phone = phone
+      payload.code = code
+    }
+    const res = await api.post('/api/auth/register', payload)
     if (res.data.code === 200) {
       return true
     }
@@ -55,6 +79,8 @@ export const useUserStore = defineStore('user', () => {
     setToken,
     logout,
     login,
+    loginBySms,
+    sendSmsCode,
     register
   }
 })

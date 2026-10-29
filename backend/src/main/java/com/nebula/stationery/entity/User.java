@@ -20,6 +20,8 @@ public class User {
 
     private Integer role;
 
+    private String phone;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

@@ -45,6 +45,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
 
 const groupBuys = ref([])
 const sessions = ref([])
@@ -73,12 +74,12 @@ const createSession = async () => {
   try {
     const res = await api.post('/api/group-buy/sessions', null, { params: { groupBuyId: selectedGroupBuyId.value } })
     if (res.data.code === 200) {
-      alert('开团成功！请在24小时内邀请好友参团')
+      toast.success('开团成功！请在24小时内邀请好友参团')
       viewSessions(selectedGroupBuyId.value)
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '开团失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '开团失败') }
 }
 
 const joinSession = async (sessionId) => {
@@ -86,15 +87,15 @@ const joinSession = async (sessionId) => {
     const res = await api.post(`/api/group-buy/sessions/${sessionId}/join`)
     if (res.data.code === 200) {
       if (res.data.data.status === 1) {
-        alert('拼团成功！')
+        toast.success('拼团成功！')
       } else {
-        alert('加入成功！当前' + res.data.data.currentSize + '人')
+        toast.success('加入成功！当前' + res.data.data.currentSize + '人')
       }
       viewSessions(selectedGroupBuyId.value)
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '参团失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '参团失败') }
 }
 
 onMounted(loadGroupBuys)

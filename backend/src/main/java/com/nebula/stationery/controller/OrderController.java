@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nebula.stationery.common.Result;
 import com.nebula.stationery.dto.OrderRequest;
 import com.nebula.stationery.service.OrderService;
+import com.nebula.stationery.vo.LogisticsVO;
 import com.nebula.stationery.vo.OrderVO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,14 @@ public class OrderController {
         Long userId = (Long) authentication.getPrincipal();
         OrderVO result = orderService.getOrderDetail(id, userId);
         return Result.success(result);
+    }
+
+    /** 单独拉取物流轨迹，订单详情页点「刷新物流」时用，避免整页重载 */
+    @GetMapping("/{id}/logistics")
+    public Result<LogisticsVO> getLogistics(Authentication authentication, @PathVariable Long id) {
+        Long userId = (Long) authentication.getPrincipal();
+        OrderVO order = orderService.getOrderDetail(id, userId);
+        return Result.success(order.getLogistics());
     }
 
     @PutMapping("/{id}/pay")

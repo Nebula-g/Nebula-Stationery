@@ -2,6 +2,8 @@ package com.nebula.stationery.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nebula.stationery.common.Result;
+import com.nebula.stationery.dto.ShipRequest;
+import com.nebula.stationery.service.LogisticsService;
 import com.nebula.stationery.service.OrderService;
 import com.nebula.stationery.service.RefundService;
 import com.nebula.stationery.vo.OrderVO;
@@ -9,6 +11,7 @@ import com.nebula.stationery.vo.RefundVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -18,6 +21,7 @@ public class AdminOrderController {
 
     private final OrderService orderService;
     private final RefundService refundService;
+    private final LogisticsService logisticsService;
 
     @GetMapping("/orders")
     public Result<Page<OrderVO>> getOrderList(
@@ -35,9 +39,15 @@ public class AdminOrderController {
     }
 
     @PutMapping("/orders/{id}/ship")
-    public Result<?> shipOrder(@PathVariable Long id) {
-        orderService.shipOrder(id);
-        return Result.success("发货成功", null);
+    public Result<OrderVO> shipOrder(@PathVariable Long id,
+                                     @RequestBody(required = false) ShipRequest request) {
+        OrderVO order = orderService.shipOrder(id, request);
+        return Result.success("发货成功", order);
+    }
+
+    @GetMapping("/logistics/companies")
+    public Result<List<String>> logisticsCompanies() {
+        return Result.success(logisticsService.companies());
     }
 
     @GetMapping("/refunds")

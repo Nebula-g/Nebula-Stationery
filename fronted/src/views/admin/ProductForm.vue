@@ -54,6 +54,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../../api'
+import toast from '../../utils/toast'
 
 const route = useRoute()
 const router = useRouter()
@@ -126,11 +127,11 @@ const handleSubmit = async () => {
     }
 
     if (res.data.code === 200) {
-      alert(isEdit.value ? '编辑成功' : '新增成功')
+      toast.success(isEdit.value ? '编辑成功' : '新增成功')
       router.push('/admin/products')
     }
   } catch (e) {
-    alert(e.message || '保存失败')
+    toast.error(e.message || '保存失败')
   } finally {
     loading.value = false
   }

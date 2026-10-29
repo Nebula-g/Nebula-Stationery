@@ -65,6 +65,15 @@ button {
   background-color: #c82333;
 }
 
+.btn-warning {
+  background-color: #e67e22;
+  color: white;
+}
+
+.btn-warning:hover {
+  background-color: #d35400;
+}
+
 /* 输入框样式 */
 .input {
   width: 100%;
@@ -106,5 +115,86 @@ button {
   .grid-3,
   .grid-4 {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 页面内确认框（src/utils/confirm.js） */
+.nebula-confirm {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  transition: opacity 0.18s ease;
+}
+
+.nebula-confirm-hide {
+  opacity: 0;
+}
+
+.nebula-confirm-card {
+  animation: nebula-confirm-in 0.18s ease-out;
+  width: 86vw;
+  max-width: 380px;
+  background: var(--confirm-bg);
+  border: 1px solid var(--confirm-border);
+  border-top: 4px solid var(--confirm-border);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+  padding: 22px 26px 18px;
+  color: var(--confirm-text);
+}
+
+.nebula-confirm-text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-line;
+  word-break: break-word;
+}
+
+.nebula-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.nebula-confirm-actions button {
+  padding: 7px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: 1px solid transparent;
+  transition: background-color 0.15s ease, filter 0.15s ease;
+}
+
+.nebula-confirm-actions .nebula-confirm-ok {
+  background-color: var(--confirm-text);
+  color: white;
+}
+
+.nebula-confirm-actions .nebula-confirm-ok:hover {
+  filter: brightness(1.15);
+}
+
+.nebula-confirm-actions .nebula-confirm-cancel {
+  background-color: white;
+  border-color: #d9d9d9;
+  color: #555;
+}
+
+.nebula-confirm-actions .nebula-confirm-cancel:hover {
+  background-color: #f2f2f2;
+}
+
+@keyframes nebula-confirm-in {
+  from {
+    transform: translateY(8px) scale(0.96);
+  }
+
+  to {
+    transform: translateY(0) scale(1);
   }
 }

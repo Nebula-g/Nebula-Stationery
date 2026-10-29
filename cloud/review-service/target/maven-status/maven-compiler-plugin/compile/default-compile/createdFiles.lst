@@ -1,0 +1,11 @@
+com\nebula\cloud\review\feign\UserClient.class
+com\nebula\cloud\review\ReviewServiceApplication.class
+com\nebula\cloud\review\feign\dto\OrderBrief.class
+com\nebula\cloud\review\entity\Review.class
+com\nebula\cloud\review\service\ReviewService$1.class
+com\nebula\cloud\review\controller\ReviewController.class
+com\nebula\cloud\review\dto\ReviewRequest.class
+com\nebula\cloud\review\feign\OrderClient.class
+com\nebula\cloud\review\mapper\ReviewMapper.class
+com\nebula\cloud\review\service\ReviewService.class
+com\nebula\cloud\review\vo\ReviewVO.class

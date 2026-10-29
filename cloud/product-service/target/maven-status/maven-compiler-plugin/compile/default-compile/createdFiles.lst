@@ -1,0 +1,11 @@
+com\nebula\cloud\product\mapper\ProductMapper.class
+com\nebula\cloud\product\entity\Product.class
+com\nebula\cloud\product\service\ProductService.class
+com\nebula\cloud\product\controller\CategoryController.class
+com\nebula\cloud\product\entity\Category.class
+com\nebula\cloud\product\controller\InternalProductController.class
+com\nebula\cloud\product\mapper\CategoryMapper.class
+com\nebula\cloud\product\config\MybatisPlusConfig.class
+com\nebula\cloud\product\dto\StockChange.class
+com\nebula\cloud\product\ProductServiceApplication.class
+com\nebula\cloud\product\controller\ProductController.class

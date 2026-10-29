@@ -37,6 +37,7 @@
             <span class="item-price">¥{{ item.unitPrice.toFixed(2) }} x {{ item.quantity }}</span>
           </div>
         </div>
+        <p v-if="reviewHint(order)" class="order-hint">{{ reviewHint(order) }}</p>
         <div class="order-footer">
           <span class="order-amount">合计：¥{{ order.totalAmount.toFixed(2) }}</span>
           <span class="order-date">{{ order.createdAt }}</span>
@@ -44,7 +45,8 @@
             <router-link v-if="order.orderType !== 'flash_sale'" :to="`/order/${order.id}`" class="btn btn-secondary btn-small">查看详情</router-link>
             <button v-if="order.status === 0" @click="payOrder(order)" class="btn btn-primary btn-small">付款</button>
             <button v-if="order.status === 0" @click="cancelOrder(order)" class="btn btn-danger btn-small">取消订单</button>
-            <button v-if="order.status === 2 && order.orderType !== 'flash_sale'" @click="confirmOrder(order.id)" class="btn btn-primary btn-small">确认收货</button>
+            <button v-if="(order.status === 1 || order.status === 2) && order.orderType !== 'flash_sale'" @click="confirmOrder(order.id)" class="btn btn-primary btn-small">确认收货</button>
+            <router-link v-if="order.status === 3 && order.orderType !== 'flash_sale'" :to="`/order/${order.id}#reviews`" class="btn btn-warning btn-small">评价商品</router-link>
           </div>
         </div>
       </div>
@@ -53,17 +55,33 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import api from '../api'
+import toast from '../utils/toast'
+import confirmAction from '../utils/confirm'
 
+const route = useRoute()
 const orders = ref([])
 const selectedStatus = ref(null)
 const now = ref(Date.now())
 let timer = null
 
+// 状态可能来自地址栏 ?status=，也可能来自筛选按钮
+const statusFromQuery = () => {
+  const value = Number(route.query.status)
+  return Number.isInteger(value) && value >= 0 && value <= 4 ? value : null
+}
+
 onMounted(() => {
+  selectedStatus.value = statusFromQuery()
   fetchOrders()
   timer = setInterval(() => { now.value = Date.now() }, 1000)
+})
+
+watch(() => route.query.status, () => {
+  selectedStatus.value = statusFromQuery()
+  fetchOrders()
 })
 
 onUnmounted(() => {
@@ -90,6 +108,17 @@ const formatCountdown = (ms) => {
   return `${minutes}分${String(seconds).padStart(2, '0')}秒`
 }
 
+/** 把「离评价还差哪一步」写在订单卡片上，免得找不到入口 */
+const reviewHint = (order) => {
+  if (order.orderType === 'flash_sale') {
+    return order.status === 1 ? '秒杀订单没有发货环节，不参与评价' : ''
+  }
+  if (order.status === 1) return '收到货后点「确认收货」，这里会出现「评价商品」'
+  if (order.status === 2) return '点「确认收货」后，这里会出现「评价商品」'
+  if (order.status === 3) return '每件商品可评价一次，最多 6 张图片'
+  return ''
+}
+
 const fetchOrders = async () => {
   try {
     const params = { page: 1, size: 100 }
@@ -111,7 +140,7 @@ const filterByStatus = (status) => {
 }
 
 const payOrder = async (order) => {
-  if (!confirm('确定付款吗？')) return
+  if (!(await confirmAction('确定付款吗？', { confirmText: '确认付款' }))) return
   try {
     let res
     if (order.orderType === 'flash_sale') {
@@ -120,16 +149,16 @@ const payOrder = async (order) => {
       res = await api.put(`/api/orders/${order.id}/pay`)
     }
     if (res.data.code === 200) {
-      alert('付款成功')
+      toast.success('付款成功')
       fetchOrders()
     }
   } catch (e) {
-    alert(e.response?.data?.message || '付款失败')
+    toast.error(e.response?.data?.message || '付款失败')
   }
 }
 
 const cancelOrder = async (order) => {
-  if (!confirm('确定取消订单吗？')) return
+  if (!(await confirmAction('确定取消该订单吗？取消后不可恢复', { confirmText: '确认取消', cancelText: '暂不取消', danger: true }))) return
   try {
     let res
     if (order.orderType === 'flash_sale') {
@@ -138,24 +167,24 @@ const cancelOrder = async (order) => {
       res = await api.put(`/api/orders/${order.id}/cancel`)
     }
     if (res.data.code === 200) {
-      alert('取消成功')
+      toast.success('取消成功')
       fetchOrders()
     }
   } catch (e) {
-    alert(e.response?.data?.message || '取消失败')
+    toast.error(e.response?.data?.message || '取消失败')
   }
 }
 
 const confirmOrder = async (orderId) => {
-  if (!confirm('确定已收到商品吗？')) return
+  if (!(await confirmAction('请确认已收到全部商品，确认后订单完成并可评价。', { confirmText: '确认收货' }))) return
   try {
     const res = await api.put(`/api/orders/${orderId}/confirm`)
     if (res.data.code === 200) {
-      alert('确认收货成功')
+      toast.success('确认收货成功')
       fetchOrders()
     }
   } catch (e) {
-    alert(e.message || '操作失败')
+    toast.error(e.message || '操作失败')
   }
 }
 
@@ -315,6 +344,12 @@ onMounted(fetchOrders)
 .order-actions {
   display: flex;
   gap: 10px;
+}
+
+.order-hint {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #999;
 }
 
 .btn-small {

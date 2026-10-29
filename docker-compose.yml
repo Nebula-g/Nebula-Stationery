@@ -1,0 +1,91 @@
+# 星云商城一键部署：MySQL + Redis + 后端 + 前端(nginx)
+# 使用前先复制 .env.example 为 .env 并改掉密码
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nebula-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: nebula-store
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # 首次启动按文件名顺序执行：建表 -> 各功能增量脚本 -> 初始化数据
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./sql/migration-optional.sql:/docker-entrypoint-initdb.d/02_migration-optional.sql:ro
+      - ./sql/migration-feature34.sql:/docker-entrypoint-initdb.d/03_migration-feature34.sql:ro
+      - ./sql/migration-feature56.sql:/docker-entrypoint-initdb.d/04_migration-feature56.sql:ro
+      - ./sql/migration-feature7.sql:/docker-entrypoint-initdb.d/05_migration-feature7.sql:ro
+      - ./sql/init-data.sql:/docker-entrypoint-initdb.d/06_init-data.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: nebula-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    container_name: nebula-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:mysql://mysql:3306/nebula-store?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      REDIS_HOST: redis
+      TZ: Asia/Shanghai
+      SMS_PROVIDER: ${SMS_PROVIDER:-mock}
+      LOGISTICS_PROVIDER: ${LOGISTICS_PROVIDER:-mock}
+      OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID:-}
+      OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET:-}
+      OSS_BUCKET_NAME: ${OSS_BUCKET_NAME:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - uploads:/app/uploads
+
+  frontend:
+    build:
+      context: ./fronted
+    container_name: nebula-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      # 宿主机 8081 → 容器 80；和本地 npm run dev(5173) 不冲突
+      - "8081:80"
+
+volumes:
+  mysql-data:
+  redis-data:
+  uploads:

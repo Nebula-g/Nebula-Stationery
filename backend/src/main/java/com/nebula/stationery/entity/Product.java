@@ -21,6 +21,8 @@ public class Product {
 
     private Integer stock;
 
+    private Integer soldCount;
+
     private Long categoryId;
 
     private String description;

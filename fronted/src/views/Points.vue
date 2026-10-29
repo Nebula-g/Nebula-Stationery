@@ -47,6 +47,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
 
 const pointsInfo = ref({ availablePoints: 0, totalPoints: 0, usedPoints: 0 })
 const pointLog = ref([])
@@ -80,31 +81,31 @@ const signIn = async () => {
   try {
     const res = await api.post('/api/points/sign-in')
     if (res.data.code === 200) {
-      alert('签到成功！获得' + res.data.data.points + '积分')
+      toast.success('签到成功！获得' + res.data.data.points + '积分')
       signedIn.value = true
       loadPoints()
       loadLog()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '签到失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '签到失败') }
 }
 
 const redeem = async () => {
   if (!redeemPoints.value || redeemPoints.value <= 0) {
-    alert('请输入有效的积分数量')
+    toast.success('请输入有效的积分数量')
     return
   }
   try {
     const res = await api.post('/api/points/redeem', null, { params: { points: redeemPoints.value } })
     if (res.data.code === 200) {
-      alert('兑换成功！抵扣¥' + res.data.data.money + '，剩余' + res.data.data.remainingPoints + '积分')
+      toast.success('兑换成功！抵扣¥' + res.data.data.money + '，剩余' + res.data.data.remainingPoints + '积分')
       loadPoints()
       loadLog()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '兑换失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '兑换失败') }
 }
 
 onMounted(() => {

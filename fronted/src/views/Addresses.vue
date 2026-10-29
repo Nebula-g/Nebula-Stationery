@@ -72,6 +72,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
+import confirmAction from '../utils/confirm'
 
 const addresses = ref([])
 const showForm = ref(false)
@@ -122,31 +124,31 @@ const saveAddress = async () => {
     if (editingId.value) {
       const res = await api.put(`/api/addresses/${editingId.value}`, form.value)
       if (res.data.code === 200) {
-        alert('修改成功')
+        toast.success('修改成功')
       }
     } else {
       const res = await api.post('/api/addresses', form.value)
       if (res.data.code === 200) {
-        alert('添加成功')
+        toast.success('添加成功')
       }
     }
     showForm.value = false
     fetchAddresses()
   } catch (e) {
-    alert(e.response?.data?.message || '操作失败')
+    toast.error(e.response?.data?.message || '操作失败')
   }
 }
 
 const deleteAddress = async (id) => {
-  if (!confirm('确定删除该地址吗？')) return
+  if (!(await confirmAction('确定删除该地址吗？', { confirmText: '确认删除', danger: true }))) return
   try {
     const res = await api.delete(`/api/addresses/${id}`)
     if (res.data.code === 200) {
-      alert('删除成功')
+      toast.success('删除成功')
       fetchAddresses()
     }
   } catch (e) {
-    alert(e.response?.data?.message || '删除失败')
+    toast.error(e.response?.data?.message || '删除失败')
   }
 }
 
@@ -157,7 +159,7 @@ const setDefaultDefault = async (id) => {
       fetchAddresses()
     }
   } catch (e) {
-    alert(e.response?.data?.message || '操作失败')
+    toast.error(e.response?.data?.message || '操作失败')
   }
 }
 

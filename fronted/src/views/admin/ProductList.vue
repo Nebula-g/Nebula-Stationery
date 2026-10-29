@@ -58,6 +58,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../api'
+import toast from '../../utils/toast'
+import confirmAction from '../../utils/confirm'
 
 const products = ref([])
 const selectedStatus = ref(null)
@@ -85,16 +87,16 @@ const filterByStatus = (status) => {
 const toggleStatus = async (product) => {
   const newStatus = product.status === 1 ? 0 : 1
   const action = newStatus === 1 ? '上架' : '下架'
-  if (!confirm(`确定${action}该商品吗？`)) return
+  if (!(await confirmAction(`确定${action}该商品吗？`, { confirmText: `确认${action}` }))) return
 
   try {
     const res = await api.put(`/api/admin/products/${product.id}/status`, null, { params: { status: newStatus } })
     if (res.data.code === 200) {
-      alert(`${action}成功`)
+      toast.success(`${action}成功`)
       fetchProducts()
     }
   } catch (e) {
-    alert(e.message || '操作失败')
+    toast.error(e.message || '操作失败')
   }
 }
 

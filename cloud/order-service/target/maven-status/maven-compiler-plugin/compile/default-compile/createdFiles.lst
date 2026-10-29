@@ -1,0 +1,16 @@
+com\nebula\cloud\order\feign\ProductClient.class
+com\nebula\cloud\order\feign\dto\StockChange.class
+com\nebula\cloud\order\OrderServiceApplication.class
+com\nebula\cloud\order\vo\OrderBrief.class
+com\nebula\cloud\order\controller\InternalOrderController.class
+com\nebula\cloud\order\entity\OrderItem.class
+com\nebula\cloud\order\config\MybatisPlusConfig.class
+com\nebula\cloud\order\controller\OrderController.class
+com\nebula\cloud\order\entity\Order.class
+com\nebula\cloud\order\vo\OrderVO.class
+com\nebula\cloud\order\feign\dto\ProductSnapshot.class
+com\nebula\cloud\order\mapper\OrderItemMapper.class
+com\nebula\cloud\order\dto\CreateOrderRequest.class
+com\nebula\cloud\order\mapper\OrderMapper.class
+com\nebula\cloud\order\service\OrderService.class
+com\nebula\cloud\order\dto\CreateOrderRequest$Item.class

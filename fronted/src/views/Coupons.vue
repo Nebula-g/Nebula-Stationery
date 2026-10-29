@@ -44,6 +44,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../api'
+import toast from '../utils/toast'
 
 const tab = ref('available')
 const availableCoupons = ref([])
@@ -72,13 +73,13 @@ const claimCoupon = async (couponId) => {
   try {
     const res = await api.post(`/api/coupons/claim/${couponId}`)
     if (res.data.code === 200) {
-      alert('领取成功')
+      toast.success('领取成功')
       loadAvailable()
       loadMyCoupons()
     } else {
-      alert(res.data.message)
+      toast.success(res.data.message)
     }
-  } catch (e) { alert(e.response?.data?.message || '领取失败') }
+  } catch (e) { toast.error(e.response?.data?.message || '领取失败') }
 }
 
 onMounted(() => {
